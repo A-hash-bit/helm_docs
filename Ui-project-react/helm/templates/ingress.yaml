@@ -1,0 +1,40 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullname := include "helm-chart.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- $endpoint := .Values.ingress.endpoint -}}
+{{- $env := include "helm-chart.env" . -}}
+{{- $instance := .Release.Name -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ printf "%s-%s" $instance $env }} 
+  labels:
+    {{- include "helm-chart.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+  {{- range $.Values.ingress.baseURLs }}
+  {{- if eq $env "prod" }}
+    - host: {{ printf "%s.travelclick.com" . }}
+  {{- else }}
+    - host: {{ printf "%s-%s.travelclick.com" . $env }}
+  {{- end }}
+  {{- range $.Values.ingress.hosts }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ printf "/%s%s" $endpoint . }}
+            backend:
+              serviceName: {{ printf "%s-%s" $instance $env }}
+              servicePort: {{ $svcPort }}
+        {{- end }}
+  {{- end }}
+  {{- end }}
+{{- end }}

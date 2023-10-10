@@ -1,0 +1,88 @@
+pipeline {
+    agent any
+    environment {
+        BRANCH_TYPE = "${branch_name.split('/')[0]}"
+        BRANCH = "${branch_name.replaceAll('/', '-')}"
+        GIT_COMMIT_SHORT = sh(
+                script: "printf \$(/opt/git/bin/git rev-parse --short ${GIT_COMMIT})",
+                returnStdout: true
+        )
+        GIT_REPO ="${GIT_URL.split('/')[-1].replaceAll('.git','')}"
+        CONTAINER_NAME = "${GIT_REPO}"
+        REGISTRY = 'http://dockerhub' (your dockerhub/ private repo url)
+        USER = 'jenkins-bi'
+    }
+    tools {
+        nodejs "nodejs-14.17.3"
+    }
+    stages {
+        stage ('Pre-build things') {
+            steps {
+                script {
+                    if (branch_name == "demo") {
+                        env.ENVIRONMENT = "demo" 
+                    } else if (branch_name == "qa") {
+                        env.ENVIRONMENT = "qa"
+                    } else if (branch_name == "stage") {
+                        env.ENVIRONMENT = "stage"
+                    } else if (branch_name == "master" || branch_name == "prod") {
+                        env.ENVIRONMENT = "prod"
+                    } else {
+                        env.ENVIRONMENT = "test"
+                    }
+                    def packageJSON = readJSON file: 'package.json'
+                    env.VERSION = packageJSON.version
+                }
+                echo "Branch Type = ${BRANCH_TYPE}"
+                echo "Branch = ${BRANCH}"
+                echo "BuildID = ${env.BUILD_ID}"
+                echo "Container Name = ${CONTAINER_NAME}"
+                echo "Docker Registry = ${REGISTRY}"
+                echo "Job Name = ${JOB_NAME}"
+                echo "Git Repo = ${GIT_REPO}"
+                echo "Environment = ${ENVIRONMENT}"
+                echo "package.json Version: ${VERSION}" 
+                sh 'env | sort | egrep GIT'
+            }
+        }
+        stage ('Build NodeJS Package'){
+            steps {
+                configFileProvider([configFile(fileId: 'jenkins-bi-npmrc', targetLocation: '.npmrc')]) {
+                    // sh 'npm install react-scripts'
+                    sh 'npm install'
+                    sh 'npm run build-${ENVIRONMENT}'
+                  	sh 'rm -rf node_modules/'
+                }
+            }
+        }
+        stage ('Do some docker things') {
+            steps {
+                script {
+                    def TAGS = [GIT_COMMIT_SHORT, BRANCH, "${BRANCH}-${BUILD_ID}", "${VERSION}-${BRANCH}", "${VERSION}-${BRANCH}-${BUILD_ID}"]
+                    if (ENVIRONMENT ==~ /\b(demo|qa|stage|prod)\b/) {
+                        TAGS.add("${ENVIRONMENT}")
+                        TAGS.add("${ENVIRONMENT}-${VERSION}")
+                        TAGS.add("${ENVIRONMENT}-${VERSION}-${BUILD_ID}")
+                    }
+                    docker.withRegistry(REGISTRY) {
+                        if (env.CHANGE_ID) {
+                            /* env.CHANGE_ID is setup when this is a Pull Request.  Don't push if/when a PR is done */
+                            echo "This was just a PR.  We aren't going to do anything here....yet"
+                        } else {
+                            echo "Working inside branch: ${BRANCH}"
+                            echo "Building new docker container"
+                            withCredentials([string(credentialsId: 'jenkins-bi-artifactory-token', variable: 'TOKEN')]) {
+                                env.TOKEN = TOKEN
+                            }
+                            def img = docker.build("${CONTAINER_NAME}", "-f docker/Dockerfile --build-arg VERSION=${VERSION} --build-arg ENV=${ENVIRONMENT} --build-arg CONTAINER_NAME=${CONTAINER_NAME} .")
+                            TAGS.each { TAG ->
+                                img.push("${TAG}")
+                            }
+                        }
+                    }
+                }       
+            }
+        }
+    }
+}
+

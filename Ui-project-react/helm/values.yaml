@@ -1,0 +1,125 @@
+# Default values for helm-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+project: <project name>
+replicaCount:
+  Prod: 3
+  NonProd: 1
+revisionHistoryLimit: 2
+
+image:
+  repository: <repo url>
+  ports:
+    - name: http
+      containerPort: 5000
+      protocol: TCP
+
+timezone: America/New_York
+
+imagePullSecrets: []
+# nameOverride: ""
+# fullnameOverride: ""
+
+livenessProbe_enabled: true
+livenessProbe:
+  httpGet:
+    path: /monitor
+    port: 5000
+  initialDelaySeconds: 5 
+  periodSeconds: 5
+  failureThreshold: 1
+
+readinessProbe_enabled: true
+readinessProbe:
+  httpGet:
+    path: /monitor
+    port: 5000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+podSecurityContext:
+  fsGroup: 620
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 5000 
+
+ingress:
+  enabled: true
+  baseURLs: 
+  - <baseurl>
+  endpoint: homepage
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  hosts:
+    - paths: 
+      - (.*)
+
+mounts:
+  prod:
+    volumeMounts:
+    - name: <name>
+      mountPath: /var/path
+    volumes:
+    - name: <name>
+      nfs:
+        path: /<path>
+        server: <server-ip>
+  dr:
+    volumeMounts:
+    - name: <name>
+      mountPath: /var/path
+    volumes:
+    - name: <name>
+      nfs:
+        path: /path
+        server: <server-ip>
+  non_prod:
+    volumeMounts:
+    - mountPath: /<path>
+      name: <name>
+    volumes:
+    - name: <name>
+      nfs:
+        path: /path
+        server: <server-ip>
+
+resources:
+  Prod:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: .1
+      memory: 500Mi
+  NonProd:
+    limits:
+      cpu: 1
+      memory: 500Mi
+    requests:
+      cpu: .1
+      memory: 250Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

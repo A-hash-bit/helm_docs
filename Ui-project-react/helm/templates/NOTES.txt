@@ -1,0 +1,24 @@
+{{- $endpoint := .Values.ingress.endpoint -}}
+{{- $env := include "helm-chart.env" . -}}
+{{- $instance := .Release.Name -}}
+{{- if .Values.ingress.enabled }}
+The following enpoints are active for this application:
+{{- range $.Values.ingress.baseURLs }}
+  {{- if eq $env "prod" }}
+* https://{{ . }}.travelclick.com/customer/portal
+  {{- else }}
+* https://{{ . }}-{{ $env }}.travelclick.com/customer/portal
+  {{- end }}
+{{- end }}
+{{- end }}
+
+Use the following `kubectl` commands for information on your deployment
+
+* kubectl -n {{ .Release.Namespace }} rollout status deployment {{ include "helm-chart.name" . }}-{{ $env }}
+* kubectl -n {{ .Release.Namespace }} get all -l "app={{ include "helm-chart.name" . }},env={{ $env }},project={{ .Values.project }}"
+* kubectl -n {{ .Release.Namespace }} get configmaps -l "app={{ include "helm-chart.name" . }},env={{ $env }},project={{ .Values.project }}"
+
+Use the following `helm` commands for specific helm information
+
+* helm -n {{ .Release.Namespace }} list -f {{ $instance }}
+

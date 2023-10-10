@@ -1,0 +1,74 @@
+{{- $fullname := include "helm-chart.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- $endpoint := .Values.ingress.endpoint -}}
+{{- $env := include "helm-chart.env" . -}}
+{{- $instance := .Release.Name -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s" $instance $env }}
+  labels:
+    {{- include "helm-chart.labels" . | nindent 4 }}
+spec:
+  {{- if or (eq $env "demo") (eq $env "prod") }}
+  replicas: {{ .Values.replicaCount.Prod }}
+  {{- else }}
+  replicas: {{ .Values.replicaCount.NonProd }}
+  {{- end }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "helm-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "helm-chart.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      {{- if .Values.serviceAccount.enabled -}}
+      serviceAccountName: {{ printf "%s-%s" $instance $env }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ .Values.image.repository }}:{{ .Values.tag | default (printf "%s-%s" $env .Chart.AppVersion) }}
+          {{- if eq $env "prod" }}
+          imagePullPolicy: IfNotPresent
+          {{- else }}
+          imagePullPolicy: Always
+          {{- end }}
+          ports:
+            {{- toYaml .Values.image.ports | nindent 12 }}
+          {{- if .Values.livenessProbe.enabled -}}  
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled -}}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+          {{- if or (eq $env "prod") (eq $env "demo") }}
+            {{- toYaml .Values.resources.Prod | nindent 12 }}
+          {{- else }}
+            {{- toYaml .Values.resources.NonProd | nindent 12 }}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+            
