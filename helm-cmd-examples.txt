@@ -1,0 +1,244 @@
+first checkout to particular branch and from helm folder
+
+helm upgrade -n bi-app-test agencyee-selfserve ./ --set tag=release-1.0.0-110 --debug --dry-run (just to check)
+helm upgrade -n bi-app-test agencyee-selfserve ./ --set tag=release-1.0.2-6 --debug  
+helm upgrade -n bi-app-stage agencyee-selfserve ./ --set tag=release-1.0.2-5 --debug 
+helm upgrade -n bi-app-qa agencyee-selfserve ./ --set tag=release-1.0.2-5 --debug
+helm uninstall -n bi-app-stage agencyee-selfserve
+helm install -n bi-app-stage agencyee-selfserve ./ --set tag=release-1.0.0-149 --debug
+kubectl -n bi-app-stage rollout status deployment agencyee-selfserve-stage
+kubectl -n bi-app-stage get all -l "app=agencyee-selfserve,env=stage,project=agencyee"
+kubectl -n bi-app-stage get configmaps -l "app=agencyee-selfserve,env=stage,project=agencyee"
+
+helm upgrade -n bi-app-test agencyee-api-selfserve  ./  --set tag=release-1.0.0_102  --debug
+helm upgrade -n bi-app-test agencyee-api-selfserve  ./  --set tag=develop_16  --debug
+helm upgrade -n bi-app-test agencyee-api-selfserve  ./  --set tag=release-1.0.1_3 --debug
+kubectl -n bi-app-test get po -l "app=agencyee-api-selfserve,env=test,project=agencyee" -w
+helm upgrade -n bi-app-stage agencyee-api-selfserve  ./  --set tag=release-1.0.0_102  --debug
+helm upgrade -n bi-app-stage agencyee-api-selfserve  ./  --set tag=develop_16   --debug
+helm upgrade -n bi-app-stage agencyee-api-selfserve  ./  --set tag=release-1.0.1_4 --debug
+
+helm history <Release-name> -n bi-app-stage
+helm history agencyee-api-selfserve -n bi-app-stage
+helm rollback [release] [revision] -n bi-app-stage
+
+helm upgrade -n bi-app-test agencyee-api-reporting ./ --set tag=release-1.0.10_2 --debug
+helm upgrade -n bi-app-stage agencyee-api-reporting ./ --set tag=release-1.0.8_6 --debug 
+helm upgrade -n bi-app-test agencyee-api-reporting ./ --set tag=develop_18 --debug
+helm upgrade -n bi-app-stage agencyee-api-reporting ./ --set tag=develop_6 --debug 
+
+helm uninstall -n bi-app-stage agencyee-api-reporting
+helm install -n bi-app-stage agencyee-api-reporting ./ --set tag=release-1.0.0_27 --debug
+* http://bi-api-stage.travelclick.com/agencyee/reporting
+* http://bi-api-stage.travelclick.com/agencyee/reporting/monitor
+* http://bi-api-stage.travelclick.com/agencyee/reporting/metrics
+* http://bi-api-stage.travelclick.com/agencyee/reporting/swagger-ui.html
+ 
+helm upgrade -n bi-app-test demandeeservice ./ --set tag=release-68_2 --debug
+helm upgrade --install -n bi-app demandeeservice ./ --set tag=demandee-build-64_5 --debug
+helm uninstall -n bi-app demandeeservice  (bi-app is for stage)
+helm install -n bi-app-stage demandeeservice ./ --set tag=123d466 --debug
+helm upgrade -n bi-app-stage demandeeservice ./ --set tag=release-68_2 --debug
+https://bi-api-stage.travelclick.com/demandee/monitor
+(if the release/deployment is in pending state i.e helm history <releasename> -n <namespace> then)
+helm rollback <releasename> <revision> -n <namespace>
+helm rollback demandeeservice 2 -n bi-app-stage
+
+demandeeselfserve_ui
+2.1.20-develop-24
+
+helm upgrade -n bi-app-test  4444444 ./ --set tag=release-1.0.0_94 --debug
+helm uninstall -n bi-app-test agencyee-api-selfserve
+helm install -n bi-app-test agencyee-api-selfserve ./ --set tag=release-1.0.0_59 --debug
+helm upgrade -n bi-app-stage agencyee-api-selfserve ./ --set tag=release-1.0.0_94 --debug
+
+(here the we have folder env/testor env/stage so need to set tag accordingly)
+helm upgrade -n bi-app-qa order-manager ./ --set env.qa.tag=release-k8-prod-1.9.0.0_100 --debug (it is redirected to stage with diff code)
+helm upgrade -n bi-app-qa order-manager ./ --set env.qa.tag=release-BI-F11743_11 --debug   (OM qa is using stage values)
+helm install -n bi-app-qa order-manager ./ --set env.qa.tag=release-k8-prod-1.18.0.0_99 --debug
+helm upgrade -n bi-app-test order-manager ./ --set env.test.tag=release-BI-F11744_10 --debug
+helm upgrade -n bi-app-stage order-manager ./ --set env.stage.tag=release-k8-prod-1.18.0.0_112 --debug
+helm upgrade -n bi-app-stage order-manager ./ --set env.stage.tag=release-k8-prod-1.9.0.0_158 --debug
+helm upgrade -n bi-app-stage order-manager ./ --set env.stage.tag=release-k8-prod-1.18.0.0_118 --debug
+helm upgrade -n bi-app-stage order-manager ./ --set env.stage.tag=release-BI-AGENCY-EE-BULKUPLOAD-FIX_4 --debug
+helm upgrade -n bi-app-dev order-manager ./ --set env.dev.tag=release-SLTC_5 --debug  (pointing to stage only)
+=========redploy means uninstall and then install============= 
+helm uninstall -n bi-app-test order-manager (order manager is release name)
+helm uninstall -n bi-app-stage order-manager
+helm uninstall -n bi-app-qa order-manager
+helm install -n bi-app-test order-manager ./ --set env.test.tag=release-k8-prod-1.9.0.0_91 --debug
+helm install -n bi-app-stage order-manager ./ --set env.stage.tag=release-k8-prod-1.18.0.0_95 --debug
+helm install -n bi-app-qa order-manager ./ --set env.qa.tag=release-k8-prod-1.18.0.0_82 --debug
+kubectl scale --replicas=1 deployment order-manager -n bi-app-stage
+kubectl scale --replicas=1 deployment order-manager -n bi-app-qa
+kubectl scale --replicas=1 deployment order-manager -n bi-app-test
+bicommonui_extjs6 (OM dependancy)
+helm upgrade -n bi-app-qa bi-comm-ui-extjs ./ --set image.tag=release-k8-prod-1.6.0.0_3 --debug
+helm uninstall -n bi-app-qa bi-comm-ui-extjs
+
+common-services (OM dependancy) but not with helm deployed with pipeline
+
+OmUtils
+helm upgrade -n bi-app-test omutils-api-script ./ --set tag=release-1.0.0_12 --debug
+helm upgrade -n bi-app-stage omutils-api-script ./ --set tag=release-1.0.0_12 --debug
+
+helm upgrade -n bi-app-test revstrat-selfserve ./ --set tag=develop-14 --debug
+helm upgrade -n bi-app-test revstrat-selfserve ./ --set tag=release-1.0.9-156 --debug
+helm upgrade -n bi-app-stage revstrat-selfserve ./ --set tag=develop-14 --debug
+
+revstrat-api-selfserve
+helm upgrade -n bi-app-test revstrat-api-selfserve ./ --set tag=release-1.0.9_104 --debug
+
+revstrat-api-reporting 
+helm upgrade -n bi-app-stage revstrat-api-reporting ./ --set tag=develop_13 --debug
+helm upgrade -n bi-app-qa revstrat-api-reporting ./ --set tag=develop_10 --debug
+helm upgrade -n bi-app-test revstrat-api-reporting ./ --set tag=develop_11 --debug
+bicommonui_extjs6
+helm upgrade -n bi-app-qa bi-comm-ui-extjs ./ --set tag=release-k8-prod-1.6.0.0_2 --debug
+
+ecom-api-emc
+helm upgrade -n bi-app-test ecom-api-emc ./ --set tag=release-1.0.4_6 --debug
+need to delete secret and them run this cmd before helm to create new secret everytime
+kubectl delete secret db-ecom-api-emc -n bi-app-test
+kubectl create secret generic db-ecom-api-emc --from-literal=SPRING_DATASOURCE_USERNAME=emcom --from-literal=SPRING_DATASOURCE_PASSWORD=Cp3a_gV7Mb -n bi-app-test 
+helm upgrade -n bi-app-stage ecom-api-emc ./ --set tag=release-1.0.4_11 --debug
+kubectl delete secret db-ecom-api-emc -n bi-app-stage
+kubectl create secret generic db-ecom-api-emc --from-literal=SPRING_DATASOURCE_USERNAME=emcom --from-literal=SPRING_DATASOURCE_PASSWORD=ANf45T_hD -n bi-app-stage
+
+ecom-api-omgr
+helm upgrade -n bi-app-test ecom-api-omgr ./ --set tag=develop_128 --debug
+helm upgrade -n bi-app-test ecom-api-omgr ./ --set tag=release-1.0.6_10 --debug
+kubectl delete secret db-ecom-api-omgr -n bi-app-test
+(Not in use)kubectl create secret generic db-ecom-api-omgr --from-literal=SPRING_DATASOURCE_USERNAME=OMGR_SELFSERV_TEST --from-literal=SPRING_DATASOURCE_PASSWORD=y1zrV7NgfPNxkb  -n bi-app-test
+(secret point to stage)
+kubectl create secret generic db-ecom-api-omgr --from-literal=SPRING_DATASOURCE_USERNAME=OMGR_SELFSERV_STAGE --from-literal=SPRING_DATASOURCE_PASSWORD=weKsW_CUSn -n bi-app-test
+helm upgrade -n bi-app-stage ecom-api-omgr ./ --set tag=release-1.0.6_10 --debug
+kubectl delete secret db-ecom-api-omgr -n bi-app-stage
+kubectl create secret generic db-ecom-api-omgr --from-literal=SPRING_DATASOURCE_USERNAME=OMGR_SELFSERV_STAGE --from-literal=SPRING_DATASOURCE_PASSWORD=weKsW_CUSn -n bi-app-stage
+helm uninstall -n bi-app-stage ecom-api-omgr
+helm install -n bi-app-stage ecom-api-omgr ./ --set tag=release-1.0.3_19 --debug
+helm upgrade -n bi-app-qa ecom-api-omgr ./ --set tag=release-1.0.6_10 --debug
+kubectl delete secret db-ecom-api-omgr -n bi-app-qa
+(secret point to stage)
+kubectl create secret generic db-ecom-api-omgr --from-literal=SPRING_DATASOURCE_USERNAME=OMGR_SELFSERV_STAGE --from-literal=SPRING_DATASOURCE_PASSWORD=weKsW_CUSn -n bi-app-qa
+
+
+customer-portal-ui
+helm uninstall -n bi-app-stage customer-portal-ui
+helm install -n bi-app-stage customer-portal-ui ./ --set tag=stage-0.2.0-128 --debug
+helm upgrade -n bi-app-stage customer-portal-ui ./ --set tag=stage-0.2.0-16 --debug  
+helm upgrade -n bi-app-test customer-portal-ui ./ --set tag=develop-279 --debug
+helm upgrade -n bi-app-qa customer-portal-ui ./ --set tag=qa-11 --debug
+
+sltc-bi-consumer
+helm install -n bi-app-dev sltc-bi-consumer ./ --set image.tag=release-1.0.0_13 --debug (dev namespace use test config values in deployment)
+helm upgrade -n bi-app-dev sltc-bi-consumer ./ --set image.tag=release-1.0.0_90 --debug
+helm upgrade -n bi-app-stage sltc-bi-consumer ./ --set image.tag=release-1.0.0_29 --debug
+helm upgrade -n bi-app-stage sltc-bi-consumer ./ --set image.tag=release-1.0.0_90 --debug
+helm upgrade -n bi-app-dev sltc-bi-consumer ./ --set image.tag=feature-DevOps_Changes_6 --debug 
+helm upgrade -n bi-app-qa sltc-bi-consumer ./ --set image.tag=release-1.0.0_90 --debug
+
+
+rate-shopping-oracle-consumer
+helm install -n bi-app-stage rate-shopping-oracle-consumer-schedule ./ --set image.tag="954ebbe" --debug
+helm install -n bi-app-stage rate-shopping-oracle-consumer-instant ./ --set image.tag="954ebbe" --debug
+
+rate-shopping-mysql-consumer
+helm upgrade -n bi-app-stage rate-shopping-mysql-consumer-schedule ./ --set image.tag="f951209" --debug
+helm uninstall -n bi-app-stage rate-shopping-mysql-consumer-schedule 
+helm install -n bi-app-stage rate-shopping-mysql-consumer-schedule ./ --set image.tag="f951209" --debug
+helm uninstall -n bi-app-stage rate-shopping-mysql-consumer-instant
+helm install -n bi-app-stage rate-shopping-mysql-consumer-instant ./ --set image.tag="f951209" --debug
+
+rate-integration-property
+helm template -n bi-app-test rate-integration-property ./ --set image.tag=hdbvba --debug
+helm upgrade -n bi-app-test rate-integration-property ./ --set tag=feature-DE71464_4 --debug
+helm install -n bi-app-test rate-integration-property ./ --set tag=8e2c79f --debug
+helm upgrade -n bi-app-stage rate-integration-property ./ --set tag=release-4.0_3 --debug
+helm template -n bi-app-stage rate-integration-property ./ --set tag=release-4.0_3 --debug
+helm uninstall rate-integration-property -n bi-app-test
+kubectl scale --replicas=1 deployment rate-integration-property -n bi-app-test
+
+
+agencycorp-selfserve
+helm upgrade -n bi-app-test agencycorp-selfserve ./ --set tag=release-1.0.4-7 --debug
+helm upgrade -n bi-app-qa agencycorp-selfserve ./ --set tag=release-1.0.4-7 --debug
+helm upgrade -n bi-app-stage agencycorp-selfserve ./ --set tag=release-1.0.5-4 --debug
+
+agencycorp-api-selfserve
+helm upgrade -n bi-app-qa agencycorp-api-selfserve ./ --set tag=develop_1 --debug
+helm upgrade -n bi-app-stage agencycorp-api-selfserve ./ --set tag=develop_4 --debug
+
+agencycorp-api-reporting
+helm upgrade -n bi-app-qa agencycorp-api-reporting ./ --set tag=release-1.0.7_7 --debug
+helm upgrade -n bi-app-test agencycorp-api-reporting ./ --set tag=release-1.0.7_7 --debug
+helm upgrade -n bi-app-stage agencycorp-api-reporting ./ --set tag=release-1.0.7_7 --debug
+
+demandpe-api-selfserve
+helm install -n bi-app-test demandpe-api-selfserve  ./  --set tag=develop_6  --debug --dry-run
+helm upgrade -n bi-app-test demandpe-api-selfserve  ./  --set tag=develop_37  --debug
+helm uninstall demandpe-api-selfserve -n bi-app-test
+helm install -n bi-app-stage demandpe-api-selfserve  ./  --set tag=develop_7  --debug
+helm upgrade -n bi-app-stage demandpe-api-selfserve  ./  --set tag=develop_37  --debug
+helm uninstall demandpe-api-selfserve -n bi-app-stage
+
+helm template -n bi-app-stage demandpe-api-selfserve  ./  --set tag=develop_33  --debug
+
+(created secret for the first time)
+kubectl create secret generic db-demandpe-api-selfserve --from-literal=DEMANDPE_DATASOURCE_DEMANDPOSITION_USERNAME=mvda_stage --from-literal=DEMANDPE_DATASOURCE_DEMANDPOSITION_PASSWORD=mvda_stage --from-literal=DEMANDPE_DATASOURCE_MVH_PASSWORD=dbuser7 --from-literal=DEMANDPE_DATASOURCE_MVH_USERNAME=dbuser --from-literal=DEMANDPE_DATASOURCE_OMGR360_USERNAME=OMGR_SELFSERV_STAGE --from-literal=DEMANDPE_DATASOURCE_OMGR360_PASSWORD=weKsW_CUSn -n bi-app-test --dry-run
+kubectl create secret generic db-demandpe-api-selfserve --from-literal=DEMANDPE_DATASOURCE_DEMANDPOSITION_USERNAME=mvda_stage --from-literal=DEMANDPE_DATASOURCE_DEMANDPOSITION_PASSWORD=mvda_stage --from-literal=DEMANDPE_DATASOURCE_MVH_PASSWORD=dbuser7 --from-literal=DEMANDPE_DATASOURCE_MVH_USERNAME=dbuser --from-literal=DEMANDPE_DATASOURCE_OMGR360_USERNAME=OMGR_SELFSERV_STAGE --from-literal=DEMANDPE_DATASOURCE_OMGR360_PASSWORD=weKsW_CUSn -n bi-app-stage --dry-run
+
+demandpe-selfserve
+helm install -n bi-app-test demandpe-selfserve ./ --set tag=develop-1 --debug --dry-run
+helm upgrade -n bi-app-test demandpe-selfserve ./ --set tag=develop-19 --debug
+helm upgrade -n bi-app-stage demandpe-selfserve ./ --set tag=develop-19 --debug
+
+selfservicecompset
+helm upgrade -n bi-app-stage selfservicecompset ./ --set tag=feature-k8_setup_19 --debug 
+helm template -n bi-app-test selfservicecompset ./ --set tag=xyz --debug
+
+ht360-services
+helm template -n bi-app-test ht360-services ./ --set env.test.tag=feature-DevOpsChanges_5 --debug
+helm upgrade -n bi-app-test ht360-services ./ --set env.test.tag=feature-DevOpsChanges_8 --debug
+release-k8_migration_and_version_upgrade_2
+
+helm upgrade -n bi-app-stage ht360-services ./ --set tag=release-k8_migration_and_version_upgrade_2 --debug
+
+helm template <chart-name> ./ 
+
+
+kubectl rollout restart deployments -n bi-app-test <deployment name> ---To restart deployment
+kubectl rollout undo deployments/<deploy-name> -n <namespace> -----to get back to previous state
+kubectl get deployment <deployment name> -n bi-app -o yaml > demand.yaml(To get last deploy with all values in helm to a yaml file and can change 
+image manually with vscode and apply that file for temporary working)
+
+(To update image of deploy with adhoc)
+kubectl logs -f deployment/<name-of-deployment>  to get deployment level logs
+kubectl set image deployments/<deployment-name> <container-name>=<new-image>
+kubectl exec -it <pod-name> -- /bin/sh
+kubectl exec --stdin --tty <pod-name> -n bi-app-test -- /bin/bash
+kubectl exec <pod name> -n bi-app-stage -it sh
+kubectl delete pod [Name_of_The_Pod] --grace-period=0 --force -n [Name_of_the_namespace]
+printenv to print env var inside pod
+
+with kubectl apply
+kubectl set image deployment/<<deployment-name>> -n=<<namespace>> <<container_name>>=<<your_dockerhub_username>>/<<image_name you want to set now>>:<<tag_of_the_image_you_want>>
+kubectl set image deployment/demandeeselfserve-stage -n bi-app 
+
+kubectl top nodes (to get memory and cpu utilization)
+kubectl top pod <pod-name> -n <namespace>
+kubectl describe PodMetrics <pod-name> -n <namespace>
+inside pod --- cat /sys/fs/cgroup/cpu/cpuacct.usage and cat /sys/fs/cgroup/memory/memory.usage_in_bytes
+
+===============Redis=======================
+kubectl --namespace=default exec -it `kubectl --namespace=default get pod | grep mypodname | awk '{print $1}'` -- /usr/bin/redis-cli -h `kubectl --namespace=default get pod | grep mypodname | awk '{print $1}'` -p 6379 -a mysecretpassword info server
+
+
+=============Prod Deployment==============
+Secrets creation:
+agencyee-api-reporting:
+kubectl create secret generic db-agencyee-api-reporting --from-literal=AGENCYEEREPORTING_DATASOURCE_DEMANDPOSITION_USERNAME=mvhcdp --from-literal=AGENCYEEREPORTING_DATASOURCE_DEMANDPOSITION_PASSWORD=falc0ns4fr --from-literal=AGENCYEEREPORTING_DATASOURCE_MVH_PASSWORD=dbuser7 --from-literal=AGENCYEEREPORTING_DATASOURCE_MVH_USERNAME=dbuser --from-literal=AGENCYEEREPORTING_DATASOURCE_OMGR360_USERNAME=OMGR_SELFSERV_PROD --from-literal=AGENCYEEREPORTING_DATASOURCE_OMGR360_PASSWORD=dbAAcsIrs --from-literal=AGENCYEEREPORTING_DATASOURCE_RUBICON_USERNAME=dbuser --from-literal=AGENCYEEREPORTING_DATASOURCE_RUBICON_PASSWORD=dbuser7 --from-literal=AGENCYEEREPORTING_VALIDATE-SOURCEIP=false -n bi-app-prod --dry-run
+helm -n bi-app-prod install agencyee-api-reporting ./ --set tag=release-1.0.0 --debug  
+AgencyEE-api-selfserve:
+kubectl create secret generic db-agencyee-api-selfserve --from-literal=AGENCYEESELFSERVE_DATASOURCE_DEMANDPOSITION_USERNAME=mvhcdp --from-literal=AGENCYEESELFSERVE_DATASOURCE_DEMANDPOSITION_PASSWORD=falc0ns4fr --from-literal=AGENCYEESELFSERVE_DATASOURCE_MVH_PASSWORD=dbuser7 --from-literal=AGENCYEESELFSERVE_DATASOURCE_MVH_USERNAME=dbuser --from-literal=AGENCYEESELFSERVE_DATASOURCE_OMGR360_USERNAME=OMGR_SELFSERV_PROD --from-literal=AGENCYEESELFSERVE_DATASOURCE_OMGR360_PASSWORD=dbAAcsIrs --from-literal=AGENCYEESELFSERVE_DATASOURCE_RUBICON_USERNAME=dbuser --from-literal=AGENCYEESELFSERVE_DATASOURCE_RUBICON_PASSWORD=dbuser7 -n bi-app-prod --dry-run
+helm -n bi-app-prod install agencyee-api-selfserve ./ --set tag=release-1.0.0 --debug
