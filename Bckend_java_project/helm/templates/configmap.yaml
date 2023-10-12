@@ -1,0 +1,22 @@
+{{- $env := include "order-manager.env" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  labels:
+    {{- include "order-manager.selectorLabels" . | nindent 4 }}
+data:
+  hibernate:  {{ tpl (.Files.Get (printf "env/%s/hibernate.properties" $env)) . | quote }}
+  scheduler_messaging:  {{ tpl (.Files.Get (printf "env/%s/scheduler_messaging.properties" $env)) . | quote }}
+  ordermanager:  {{ tpl (.Files.Get (printf "env/%s/ordermanager.properties" $env)) . | quote }}
+  quartz: {{ tpl (.Files.Get (printf "env/%s/quartz.properties" $env)) . | quote }}
+  redisson: {{ tpl (.Files.Get (printf "env/%s/redisson.conf" $env)) . | quote }}
+  bulkuploader: {{ tpl (.Files.Get (printf "env/%s/gssreports/bulkuploader.properties" $env)) . | quote }}
+  eletter_template:  {{ tpl (.Files.Get (printf "env/%s/eletter_template_VCL.sql" $env)) . | quote }}
+  eletter_survay: {{ tpl (.Files.Get (printf "env/%s/eletter_survey_VCL.sql" $env)) . | quote }}
+  eletter_property: {{ tpl (.Files.Get (printf "env/%s/eletter_property_VCL.sql" $env)) . | quote }}
+  password_encryption_key: {{ tpl (.Files.Get (printf "env/%s/passwordEncryptionKey.binary" $env)) . | quote }}
+  services: {{ tpl (.Files.Get (printf "env/%s/services.properties" $env)) . | quote }}
+  auth_config: {{ tpl (.Files.Get (printf "env/%s/authConfig.properties" $env)) . | quote }}
+  tc_ping_env: {{ tpl (.Files.Get (printf "env/%s/tc-ping-env.properties" $env)) . | quote }}
+  

@@ -1,0 +1,29 @@
+{{- $env := include "order-manager.env" . -}}
+{{- if (index .Values.env $env).autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "order-manager.fullname" . }}
+  labels:
+    {{- include "order-manager.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "order-manager.fullname" . }}
+  minReplicas: {{ (index .Values.env $env).autoscaling.minReplicas }}
+  maxReplicas: {{ (index .Values.env $env).autoscaling.maxReplicas }}
+  metrics:
+    {{- if (index .Values.env $env).autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ (index .Values.env $env).autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if (index .Values.env $env).autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ (index .Values.env $env).autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

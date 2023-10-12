@@ -1,0 +1,475 @@
+image:
+  repository: "dockerhub-ilcb.travelclick.net/ordermanager"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  # Test Comment
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  annotationsaffinity: 
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/affinity-mode: persistent
+  annotations:
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-hash: sha1
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+  hosts:
+    - host: ordermanager
+      paths:
+      - /ordermanager
+      affinitypaths:
+      - /service/bulk_upload
+  tls: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  prod:
+    api:
+      database.rubicon.url: amRiYzpteXNxbDovL2JpZGJvcmdsMDAuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9ydWJpY29uP3plcm9EYXRlVGltZUJlaGF2aW9yPWNvbnZlcnRUb051bGw=
+      database.rubicon.username: ZGJ1c2Vy
+      database.rubicon.password: ZGJ1c2VyNw==
+      database.mvh.url: amRiYzpteXNxbDovL2JpZGJob3RsMDAuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9tdmg/emVyb0RhdGVUaW1lQmVoYXZpb3I9Y29udmVydFRvTnVsbA==
+      database.mvh.username: ZGJ1c2Vy
+      database.mvh.password: ZGJ1c2VyNw==
+      database.mvmon.url: amRiYzpteXNxbDovL2JpZGJtb25sMDAuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9tdm1vbg==
+      database.mvmon.username: ZGJ1c2Vy
+      database.mvmon.password: ZGJ1c2VyNw==
+      database.mvda.url: amRiYzpvcmFjbGU6dGhpbjpALy9leGEzLXNjYW4uZ2Fpbi50Y3Byb2QubG9jYWw6MTUzMC9vbWdyX2FwcA==
+      database.mvda.username: T01HUl9QUk9E
+      database.mvda.password: SDVQMTI0aUVr
+      database.mvhda.url: amRiYzpvcmFjbGU6dGhpbjpALy9leGEzLXNjYW4uZ2Fpbi50Y3Byb2QubG9jYWw6MTUzMC9kZW1hbmRfcG9zaXRpb24=
+      database.mvhda.username: bXZoY2Rw
+      database.mvhda.password: ZmFsYzBuczRmcg==
+      database.apps.url: amRiYzpvcmFjbGU6dGhpbjpALy9lYnNsMDEuZ2Fpbi50Y3Byb2QubG9jYWw6MTU0Ni9zdHJwcm9k
+      database.apps.username: dGNfYXBwcw==
+      database.apps.password: dGNfYXBwcw==
+      database.gms.url: amRiYzpvcmFjbGU6dGhpbjpALy9leGEzLXNjYW4uZ2Fpbi50Y3Byb2QubG9jYWw6MTUzMC9odDM2MHByb2Q=
+      database.gms.username: Z3Zfc3RhZ2U=
+      database.gms.password: Z3Zfc3RhZ2VfcHJvZGV4YQ==
+      database.emc.url: amRiYzpvcmFjbGU6dGhpbjpALy9jYnNlbWNkYi1zY2FuLmdhaW4udGNwcm9kLmxvY2FsOjE1MzAvZW1jX29t
+      database.emc.username: ZW1jb20=
+      database.emc.password: T2dFdF82SDdk
+      database.ht360RateStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9leGEzLXNjYW4uZ2Fpbi50Y3Byb2QubG9jYWw6MTUzMC9odDM2MHByb2Q=
+      database.ht360RateStage.username: aHQzNjBfcmF0ZV9wcm9k
+      database.ht360RateStage.password: aHQzNjBfcmF0ZV9wcm9k
+      database.ht360DmdStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9leGEzLXNjYW4uZ2Fpbi50Y3Byb2QubG9jYWw6MTUzMC9odDM2MHByb2Q=
+      database.ht360DmdStage.username: aHQzNjBfZG1kX3Byb2Q=
+      database.ht360DmdStage.password: aHQzNjBfZG1kX3Byb2RfcHJvZGV4YQ==
+      database.ht360AgencyStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9leGEzLXNjYW4uZ2Fpbi50Y3Byb2QubG9jYWw6MTUzMC9odDM2MHByb2Q=
+      database.ht360AgencyStage.username: aHQzNjBfYWd5X3Byb2Q=
+      database.ht360AgencyStage.password: aHQzNjBfYWd5X3Byb2RfcHJvZGV4YQ==
+      database.gv.url: amRiYzpvcmFjbGU6dGhpbjpALy9leGEzLXNjYW4uZ2Fpbi50Y3Byb2QubG9jYWw6MTUzMC9odDM2MHByb2Q=
+      database.gv.username: aHQzNjBfZ3ZfcHJvZF96
+      database.gv.password: aHQzNjBfZ3ZfcHJvZF96X3Byb2RleGE=
+      redis.hostname: b20tcmVkaXMtY2x1c3Rlci5iaS1yZWRpcy5zdmMuY2x1c3Rlci5sb2NhbA==
+      redis.username: YXBw
+      redis.password: RllII2JOXldLNw==
+      redis.port: NjM3OQ==
+    replicaCount: 3
+    tag: release-BI-F11744
+    pullPolicy: IfNotPresent
+    livenessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 30
+    readinessProbe:
+      initialDelaySeconds: 150
+      periodSeconds: 30
+    resources:
+      limits:
+        cpu: 2
+        memory: 12Gi
+      requests:
+        cpu: .5
+        memory: 8Gi
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 4
+    mounts:
+      volumes:
+      - name: opt-weblogic
+        nfs:
+          path: /bi_ordermanger_prod/prod/weblogic
+          server: 10.30.32.253
+      - name: mnt-content-lib
+        nfs:
+          path: /bi_content_lib/volume/san01_nfs1_fs01/content
+          server: 10.30.32.253
+      - name: mnt-content-lib-emlfilefolder
+        nfs:
+          path: /bi_content_lib/volume/san01_nfs1_fs01/emlFileOutputFolder
+          server: 10.30.32.253
+      volumeMounts:
+      - name: opt-weblogic
+        mountPath: /opt/weblogic
+      - name: mnt-content-lib
+        mountPath: /usr/rate360_report_content
+      - name: mnt-content-lib-emlfilefolder
+        mountPath: /mnt/content_lib/volume/san01_nfs1_fs01/emlFileOutputFolder
+  stage:
+    api:
+      database.rubicon.url: amRiYzpteXNxbDovL2JpZGJob3RsMDEtZDEuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9ydWJpY29uX3N0YWdlP3plcm9EYXRlVGltZUJlaGF2aW9yPWNvbnZlcnRUb051bGw=
+      database.rubicon.username: ZGJ1c2Vy
+      database.rubicon.password: ZGJ1c2VyNw==
+      database.mvh.url: amRiYzpteXNxbDovL2JpZGJob3RsMDEtZDEuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9tdmhfc3RhZ2U/emVyb0RhdGVUaW1lQmVoYXZpb3I9Y29udmVydFRvTnVsbA==
+      database.mvh.username: ZGJ1c2Vy
+      database.mvh.password: ZGJ1c2VyNw==
+      database.mvmon.url: amRiYzpteXNxbDovL2JpZGJob3RsMDEtZDEuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9tdm1vbl9zdGFnZT96ZXJvRGF0ZVRpbWVCZWhhdmlvcj1jb252ZXJ0VG9OdWxs
+      database.mvmon.username: ZGJ1c2Vy
+      database.mvmon.password: ZGJ1c2VyNw==
+      database.mvda.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L29tZ3JfYXBw
+      database.mvda.username: T01HUl9TVEFHRQ==
+      database.mvda.password: WGNXdmtfNkswNw==
+      database.mvhda.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L2RlbWFuZF9wb3NpdGlvbg==
+      database.mvhda.username: bXZkYV9zdGFnZQ==
+      database.mvhda.password: bXZkYV9zdGFnZQ==
+      database.apps.url: amRiYzpvcmFjbGU6dGhpbjpALy8xMC4xMC42Ni4xMjoxNTQxL3N0cnQy
+      database.apps.username: YXBwcw==
+      database.apps.password: cXVpY2sxMjM=
+      database.gms.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.gms.username: Z21zX3N0YWdl
+      database.gms.password: Z21zX3N0YWdl
+      database.emc.url: amRiYzpvcmFjbGU6dGhpbjpALy9jYnNlbWNkYmwtcXgtc2Nhbi5pbGNiLnRjcHJvZC5sb2NhbDoxNTMwL2VtY19vbV91YXQ=
+      database.emc.username: ZW1jb20=
+      database.emc.password: QU5mNDVUX2hE
+      database.ht360RateStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L29tZ3JfYXBw
+      database.ht360RateStage.username: aHQzNjBfcmF0ZV9zdGFnZQ==
+      database.ht360RateStage.password: aHQzNjBfcmF0ZV9zdGFnZQ==
+      database.ht360DmdStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.ht360DmdStage.username: aHQzNjBfZG1kX3N0YWdl
+      database.ht360DmdStage.password: aHQzNjBfZG1kX3N0YWdl
+      database.ht360AgencyStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.ht360AgencyStage.username: aHQzNjBfYWd5X2Rldg==
+      database.ht360AgencyStage.password: aHQzNjBfYWd5X2Rldg==
+      database.gv.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.gv.username: aHQzNjBfZ3Zfc3RhZ2VfMTFn
+      database.gv.password: aHQzNjBfZ3Zfc3RhZ2VfMTFn
+      redis.hostname: c3RhZ2UtcmVkaXMtY2x1c3Rlci5iaS1yZWRpcy5zdmMuY2x1c3Rlci5sb2NhbA==
+      redis.username: YXBw
+      redis.password: P2JWUGY4XyE5TV4rRzZYOQ==
+      redis.port: NjM3OQo=
+    replicaCount: 3
+    tag: release-BI-F11744
+    pullPolicy: Always
+    livenessProbe:
+      initialDelaySeconds: 180
+      periodSeconds: 30
+    readinessProbe:
+      initialDelaySeconds: 240
+      periodSeconds: 30
+    resources:
+      limits:
+        cpu: 2
+        memory: 12Gi
+      requests:
+        cpu: .5
+        memory: 8Gi
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 5
+      targetCPUUtilizationPrecentage: 80
+    mounts:
+      volumes:
+      - name: opt-weblogic
+        nfs:
+          path: /vol/devtest/share/rubicon/weblogic
+          server: 10.30.183.253
+      - name: mnt-devtest
+        nfs:
+          path: /vol/devtest/
+          server: 10.30.183.253
+      volumeMounts:
+      - name: opt-weblogic
+        mountPath: /opt/weblogic
+      - name: mnt-devtest
+        mountPath: /mnt/devtest
+  test:
+    api:
+      database.rubicon.url: amRiYzpteXNxbDovL2JpZGJob3RsMDEtZDEuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9ydWJpY29uX3Rlc3Q/emVyb0RhdGVUaW1lQmVoYXZpb3I9Y29udmVydFRvTnVsbA==
+      database.rubicon.username: ZGJ1c2Vy
+      database.rubicon.password: ZGJ1c2VyNw==
+      database.mvda.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L29tZ3JfYXBw
+      database.mvda.username: T01HUl9URVNU
+      database.mvda.password: eGIxc1ZLZUdUZ2pPcHc=
+      database.mvh.url: amRiYzpteXNxbDovL2JpZGJob3RsMDEtZDEuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9tdmhfdGVzdD96ZXJvRGF0ZVRpbWVCZWhhdmlvcj1jb252ZXJ0VG9OdWxs
+      database.mvh.username: ZGJ1c2Vy
+      database.mvh.password: ZGJ1c2VyNw==
+      database.mvhda.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L2RlbWFuZF9wb3NpdGlvbg==
+      database.mvhda.username: bXZkYV90ZXN0
+      database.mvhda.password: bXZkYV90ZXN0
+      database.apps.url: amRiYzpvcmFjbGU6dGhpbjpALy9lYnN1YXQuaWxjYi50Y3Byb2QubG9jYWw6MTU0MS9zdHJ0Mg==
+      database.apps.username: YXBwcw==
+      database.apps.password: cXVpY2sxMjM=
+      database.mvmon.url: amRiYzpteXNxbDovL2JpZGJob3RsMDEtZDEuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9tdm1vbl90ZXN0P3plcm9EYXRlVGltZUJlaGF2aW9yPWNvbnZlcnRUb051bGw=
+      database.mvmon.username: ZGJ1c2Vy
+      database.mvmon.password: ZGJ1c2VyNw==
+      database.gms.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.gms.username: Z21zX3N0YWdlX2Rldg==
+      database.gms.password: Z21zX3N0YWdlX2Rldg==
+      database.emc.url: amRiYzpvcmFjbGU6dGhpbjpALy9jYnNlbWNkYmwtcXgtc2Nhbi5pbGNiLnRjcHJvZC5sb2NhbDoxNTMwL2VtY19vbV9xYQ==
+      database.emc.username: ZW1jb20=
+      database.emc.password: Q3AzYV9nVjdNYg==
+      database.ht360RateStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L29tZ3JfYXBw
+      database.ht360RateStage.username: aHQzNjBfcmF0ZV9zdGFnZQ==
+      database.ht360RateStage.password: aHQzNjBfcmF0ZV9zdGFnZQ==
+      database.ht360DmdStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.ht360DmdStage.username: aHQzNjBfZG1kX3N0YWdl
+      database.ht360DmdStage.password: aHQzNjBfZG1kX3N0YWdl
+      database.ht360AgencyStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.ht360AgencyStage.username: aHQzNjBfYWd5X2Rldg==
+      database.ht360AgencyStage.password: aHQzNjBfYWd5X2Rldg==
+      database.gv.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.gv.username: aHQzNjBfZ3Zfc3RhZ2VfMTFn
+      database.gv.password: aHQzNjBfZ3Zfc3RhZ2VfMTFn
+      #redis.hostname: cmVkaXMtY2x1c3Rlci5iaS1yZWRpcy10ZXN0LnN2Yy5jbHVzdGVyLmxvY2Fs
+      #redis.username: YXBw
+      #redis.password: P2JWUGY4XyE5TV4rRzZYOQ==
+      #redis.port: NjM4MQ==
+      redis.hostname: dGVzdC1yZWRpcy1jbHVzdGVyLmJpLXJlZGlzLnN2Yy5jbHVzdGVyLmxvY2Fs
+      redis.username: YXBw
+      redis.password: P2JWUGY4XyE5TV4rRzZYOQ==
+      redis.port: NjM3OQo=
+    replicaCount: 1
+    tag: release-BI-F11744
+    pullPolicy: Always
+    livenessProbe:
+      initialDelaySeconds: 180
+      periodSeconds: 30
+    readinessProbe:
+      initialDelaySeconds: 240
+      periodSeconds: 30
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: .1
+        memory: 512Mi
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 1
+      targetCPUUtilizationPrecentage: 80
+    mounts:
+      volumes:
+      - name: usr-rubicon
+        nfs:
+          path: /vol/devtest/share/rubicon
+          server: 10.30.183.253
+      - name: mnt-devtest
+        nfs:
+          path: /vol/devtest
+          server: 10.30.183.253
+      - name: opt-weblogic
+        nfs:
+          path: /vol/devtest/share/app/weblogic-pompeii
+          server: 10.30.183.253
+      volumeMounts:
+      - name: usr-rubicon
+        mountPath: /usr/rubicon
+      - name: mnt-devtest
+        mountPath: /mnt/devtest
+      - name: opt-weblogic
+        mountPath: /opt/weblogic
+  dev:
+    api:
+      database.rubicon.url: amRiYzpteXNxbDovLzEwLjMwLjI1LjM3OjMzMDYvcnViaWNvbjM2MF9kZXY/emVyb0RhdGVUaW1lQmVoYXZpb3I9Y29udmVydFRvTnVsbA==
+      database.rubicon.username: ZGJ1c2Vy
+      database.rubicon.password: ZGJ1c2VyNw==
+      database.mvda.url: amRiYzpvcmFjbGU6dGhpbjpALy8xMC4zMC45MS4xNToxNTIxL2VsYWJzdGVzdA==
+      database.mvda.username: aHQzNjBfb21ncl9kZXY=
+      database.mvda.password: aHQzNjBfb21ncl9kZXY=
+      database.mvh.url: amRiYzpteXNxbDovLzEwLjMwLjI1LjM3OjMzMDYvbXZoMzYwX2Rldj96ZXJvRGF0ZVRpbWVCZWhhdmlvcj1jb252ZXJ0VG9OdWxs
+      database.mvh.username: ZGJ1c2Vy
+      database.mvh.password: ZGJ1c2VyNw==
+      database.mvhda.url: amRiYzpvcmFjbGU6dGhpbjpALy8xNzIuMjcuNjAuNDQ6MTUyMS9vcmNs
+      database.mvhda.username: TVZIREFfREVW
+      database.mvhda.password: TVZIREFfREVWX05FVzM=
+      database.apps.url: amRiYzpvcmFjbGU6dGhpbjpALy8xMC4xMC42Ni4xMjoxNTQxL3N0cnQy
+      database.apps.username: YXBwcw==
+      database.apps.password: cXVpY2sxMjM=
+      database.mvmon.url: amRiYzpteXNxbDovLzEwLjMwLjI1LjM3OjMzMDYvbXZtb25fZGV2P3plcm9EYXRlVGltZUJlaGF2aW9yPWNvbnZlcnRUb051bGw=
+      database.mvmon.username: ZGJ1c2Vy
+      database.mvmon.password: ZGJ1c2VyNw==
+      database.gms.url: Tm9uZQ==
+      database.gms.username: Tm9uZQ==
+      database.gms.password: Tm9uZQ==
+      database.emc.url: Tm9uZQ==
+      database.emc.username: Tm9uZQ==
+      database.emc.password: Tm9uZQ==
+      database.ht360RateStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTFkYmFkbTAxLmdhaW4udGNwcm9kLmxvY2FsOjE1MjEvZWxhYnN0ZXN0
+      database.ht360RateStage.username: aHQzNjBfcmF0ZV9zdGFnZQ==
+      database.ht360RateStage.password: aHQzNjBfcmF0ZV9zdGFnZQ==
+      database.ht360DmdStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTEtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTIxL3IzNjBlbDE=
+      database.ht360DmdStage.username: aHQzNjBfZG1kX3N0YWdl
+      database.ht360DmdStage.password: aHQzNjBfZG1kX3N0YWdl
+      database.ht360AgencyStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTEtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTIxL3IzNjBlbGF0
+      database.ht360AgencyStage.username: aHQzNjBfYWd5X2Rldg==
+      database.ht360AgencyStage.password: aHQzNjBfYWd5X2Rldg==
+      database.gv.url: Tm9uZQ==
+      database.gv.username: Tm9uZQ==
+      database.gv.password: Tm9uZQ==
+      redis.hostname: ZGV2LXJlZGlzLWNsdXN0ZXIuYmktcmVkaXMuc3ZjLmNsdXN0ZXIubG9jYWw=
+      redis.username: YXBw
+      redis.password: P2JWUGY4XyE5TV4rRzZYOQ==
+      redis.port: NjM4MQ==
+    replicaCount: 1
+    tag: release-BI-F11744
+    pullPolicy: Always
+    livenessProbe:
+      initialDelaySeconds: 180
+      periodSeconds: 30
+    readinessProbe:
+      initialDelaySeconds: 240
+      periodSeconds: 30
+    resources:
+      limits:
+        cpu: 1
+        memory: 512Mi
+      requests:
+        cpu: .1
+        memory: 128Mi
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 1
+      targetCPUUtilizationPrecentage: 80
+    mounts:
+      volumes:
+      - name: usr-rubicon
+        nfs:
+          path: /vol/devtest/share/rubicon
+          server: 10.30.183.253
+      - name: mnt-devtest
+        nfs:
+          path: /vol/devtest
+          server: 10.30.183.253
+      - name: opt-weblogic
+        nfs:
+          path: /vol/devtest/share/app/weblogic-pompeii
+          server: 10.30.183.253
+      volumeMounts:
+      - name: usr-rubicon
+        mountPath: /usr/rubicon
+      - name: mnt-devtest
+        mountPath: /mnt/devtest
+      - name: opt-weblogic
+        mountPath: /opt/weblogic
+  qa:
+    api:
+      database.rubicon.url: amRiYzpteXNxbDovL2JpZGJob3RsMDEtZDEuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9ydWJpY29uX3N0YWdlP3plcm9EYXRlVGltZUJlaGF2aW9yPWNvbnZlcnRUb051bGw=
+      database.rubicon.username: ZGJ1c2Vy
+      database.rubicon.password: ZGJ1c2VyNw==
+      database.mvh.url: amRiYzpteXNxbDovL2JpZGJob3RsMDEtZDEuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9tdmhfc3RhZ2U/emVyb0RhdGVUaW1lQmVoYXZpb3I9Y29udmVydFRvTnVsbA==
+      database.mvh.username: ZGJ1c2Vy
+      database.mvh.password: ZGJ1c2VyNw==
+      database.mvmon.url: amRiYzpteXNxbDovL2JpZGJob3RsMDEtZDEuZ2Fpbi50Y3Byb2QubG9jYWw6MzMwNi9tdm1vbl9zdGFnZT96ZXJvRGF0ZVRpbWVCZWhhdmlvcj1jb252ZXJ0VG9OdWxs
+      database.mvmon.username: ZGJ1c2Vy
+      database.mvmon.password: ZGJ1c2VyNw==
+      database.mvda.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L29tZ3JfYXBw
+      database.mvda.username: T01HUl9TVEFHRQ==
+      database.mvda.password: WGNXdmtfNkswNw==
+      database.mvhda.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L2RlbWFuZF9wb3NpdGlvbg==
+      database.mvhda.username: bXZkYV9zdGFnZQ==
+      database.mvhda.password: bXZkYV9zdGFnZQ==
+      database.apps.url: amRiYzpvcmFjbGU6dGhpbjpALy8xMC4xMC42Ni4xMjoxNTQxL3N0cnQy
+      database.apps.username: YXBwcw==
+      database.apps.password: cXVpY2sxMjM=
+      database.gms.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.gms.username: Z21zX3N0YWdl
+      database.gms.password: Z21zX3N0YWdl
+      database.emc.url: amRiYzpvcmFjbGU6dGhpbjpALy9jYnNlbWNkYmwtcXgtc2Nhbi5pbGNiLnRjcHJvZC5sb2NhbDoxNTMwL2VtY19vbV91YXQ=
+      database.emc.username: ZW1jb20=
+      database.emc.password: QU5mNDVUX2hE
+      database.ht360RateStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L29tZ3JfYXBw
+      database.ht360RateStage.username: aHQzNjBfcmF0ZV9zdGFnZQ==
+      database.ht360RateStage.password: aHQzNjBfcmF0ZV9zdGFnZQ==
+      database.ht360DmdStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.ht360DmdStage.username: aHQzNjBfZG1kX3N0YWdl
+      database.ht360DmdStage.password: aHQzNjBfZG1kX3N0YWdl
+      database.ht360AgencyStage.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.ht360AgencyStage.username: aHQzNjBfYWd5X2Rldg==
+      database.ht360AgencyStage.password: aHQzNjBfYWd5X2Rldg==
+      database.gv.url: amRiYzpvcmFjbGU6dGhpbjpALy9kdmV4YTMtc2Nhbi5nYWluLnRjcHJvZC5sb2NhbDoxNTI0L3IzNjBlbGF0
+      database.gv.username: aHQzNjBfZ3Zfc3RhZ2VfMTFn
+      database.gv.password: aHQzNjBfZ3Zfc3RhZ2VfMTFn
+      redis.hostname: c3RhZ2UtcmVkaXMtY2x1c3Rlci5iaS1yZWRpcy5zdmMuY2x1c3Rlci5sb2NhbA==
+      redis.username: YXBw
+      redis.password: P2JWUGY4XyE5TV4rRzZYOQ==
+      redis.port: NjM4MQ==
+    replicaCount: 3
+    tag: release-BI-F11744
+    pullPolicy: Always
+    livenessProbe:
+      initialDelaySeconds: 180
+      periodSeconds: 30
+    readinessProbe:
+      initialDelaySeconds: 240
+      periodSeconds: 30
+    resources:
+      limits:
+        cpu: 2
+        memory: 12Gi
+      requests:
+        cpu: .5
+        memory: 8Gi
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 5
+      targetCPUUtilizationPrecentage: 80
+    mounts:
+      volumes:
+      - name: opt-weblogic
+        nfs:
+          path: /vol/devtest/share/rubicon/weblogic
+          server: 10.30.183.253
+      - name: mnt-devtest
+        nfs:
+          path: /vol/devtest/
+          server: 10.30.183.253
+      volumeMounts:
+      - name: opt-weblogic
+        mountPath: /opt/weblogic
+      - name: mnt-devtest
+        mountPath: /mnt/devtest

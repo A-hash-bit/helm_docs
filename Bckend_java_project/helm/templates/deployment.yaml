@@ -1,0 +1,357 @@
+{{- $env := include "order-manager.env" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "order-manager.fullname" . }}
+  labels:
+    {{- include "order-manager.labels" . | nindent 4 }}
+spec:
+  {{- if not (index .Values.env $env).autoscaling.enabled }}
+  replicas: {{ (index .Values.env $env).replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "order-manager.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+      labels:
+        {{- include "order-manager.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "order-manager.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /ordermanager
+              port: {{ .Values.service.port }}
+              scheme: HTTP
+            initialDelaySeconds: {{ (index .Values.env $env).livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ (index .Values.env $env).livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: /ordermanager
+              port: {{ .Values.service.port }}
+              scheme: HTTP
+            initialDelaySeconds: {{ (index .Values.env $env).readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ (index .Values.env $env).readinessProbe.periodSeconds }}
+          env:
+          # Rubicon database
+          - name: DB_RUBICON_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.rubicon.url
+          - name: DB_RUBICON_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.rubicon.username
+          - name: DB_RUBICON_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.rubicon.password  
+          #MVH Databse  
+          - name: DB_MVH_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvh.url
+          - name: DB_MVH_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvh.username
+          - name: ODB_MVH_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvh.password      
+          #MVDA Database    
+          - name: DB_MVDA_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvhda.url
+          - name: DB_MVDA_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvda.username
+          - name: ODB_MVDA_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvda.password 
+          #MVHDA Database    
+          - name: DB_MVHDA_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvhda.url
+          - name: DB_MVHDA_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvhda.username
+          - name: ODB_MVHDA_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvhda.password 
+          #MVGV Database    
+#           - name: DB_MVGV_URL
+#             valueFrom: 
+#               secretKeyRef: 
+#                 name: {{ include "order-manager.fullname" . }}
+#                 key: database.mvgv.username
+#           - name: DB_MVGV_USERNAME
+#             valueFrom: 
+#               secretKeyRef: 
+#                 name: {{ include "order-manager.fullname" . }}
+#                 key: database.mvgv.username
+#           - name: ODB_MVGV_PASSWORD            
+#             valueFrom: 
+#               secretKeyRef: 
+#                 name: {{ include "order-manager.fullname" . }}
+#                 key: database.mvgv.password
+           #APPS Database    
+          - name: DB_APPS_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.apps.url
+          - name: DB_APPS_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.apps.username
+          - name: ODB_APPS_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.apps.password 
+          #MVMON Database    
+          - name: DB_MVMON_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvmon.url
+          - name: DB_MVMON_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvmon.username
+          - name: ODB_MVMON_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.mvmon.password
+          #GUESTSAT Database    
+#           - name: DB_GUESTSAT_URL
+#             valueFrom: 
+#               secretKeyRef: 
+#                 name: {{ include "order-manager.fullname" . }}
+#                 key: database.guestSat.url
+#           - name: DB_GUESTSAT_USERNAME
+#             valueFrom: 
+#               secretKeyRef: 
+#                 name: {{ include "order-manager.fullname" . }}
+#                 key: database.guestSat.username
+#           - name: ODB_GUESTSAT_PASSWORD            
+#             valueFrom: 
+#               secretKeyRef: 
+#                 name: {{ include "order-manager.fullname" . }}
+#                 key: database.guestSat.password
+          #GMS Database
+          - name: DB_GMS_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.gms.url
+          - name: DB_GMS_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.gms.username
+          - name: ODB_GMS_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.gms.password
+          #EMC Database
+          - name: DB_EMC_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.emc.url
+          - name: DB_EMC_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.emc.username
+          - name: ODB_EMC_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.emc.password
+          #HT360 RATE STAGE URL
+          - name: DB_HT360_RATE_STAGE_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.ht360RateStage.url
+          - name: DB_HT360_RATE_STAGE_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.ht360RateStage.username
+          - name: DB_HT360_RATE_STAGE_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.ht360RateStage.password
+          #HT360 DMD STAGE 
+          - name: DB_HT360_DMD_STAGE_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.ht360DmdStage.url
+          - name: DB_HT360_DMD_STAGE_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.ht360DmdStage.username
+          - name: DB_HT360_DMD_STAGE_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.ht360DmdStage.password
+          #HT360 AGENCY 
+          - name: DB_HT360_AGENCY_STAGE_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.ht360AgencyStage.url
+          - name: DB_HT360_AGENCY_STAGE_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.ht360AgencyStage.username
+          - name: DB_HT360_AGENCY_STAGE_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.ht360AgencyStage.password
+          #HT360 GV STAGE
+          - name: DB_HT360_GV_STAGE_URL
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.gv.url
+          - name: DB_HT360_GV_STAGE_USERNAME
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.gv.username
+          - name: DB_HT360_GV_STAGE_PASSWORD            
+            valueFrom: 
+              secretKeyRef: 
+                name: {{ include "order-manager.fullname" . }}
+                key: database.gv.password
+          - name: JAVA_OPTS
+            value: " -DBULKUPLOADERCONFIG=/opt/tomcat/omprops"
+          - name: TZ
+            value: "America/New_York"
+          - name: REDIS_SERVER
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "order-manager.fullname" . }}
+                key: redis.hostname
+          - name: REDIS_PORT
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "order-manager.fullname" . }}
+                key: redis.port
+          - name: REDIS_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "order-manager.fullname" . }}
+                key: redis.username
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "order-manager.fullname" . }}
+                key: redis.password
+          image: "{{ .Values.image.repository }}:{{ printf (index .Values.env $env).tag}}"
+          imagePullPolicy: {{ (index .Values.env $env).pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP    
+          resources:
+            {{- toYaml (index .Values.env $env).resources | nindent 12 }}
+          volumeMounts:
+          - name: properties-files
+            mountPath: /opt/tomcat/omprops
+          {{- toYaml (index .Values.env $env).mounts.volumeMounts | nindent 10 }}
+      volumes:
+      - name: properties-files
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          items: 
+          - key: hibernate
+            path: hibernate.properties
+          - key: scheduler_messaging
+            path: scheduler_messaging.properties
+          - key: ordermanager
+            path: ordermanager.properties
+          - key: quartz
+            path: quartz.properties
+          - key: redisson
+            path: redisson.conf  
+          - key: bulkuploader
+            path: bulkuploader.properties
+          - key: scheduler_messaging
+            path: scheduler_messaging.properties
+          - key: eletter_template
+            path: eletter_template_VCL.sql
+          - key: eletter_survay
+            path: eletter_survey_VCL.sql
+          - key: eletter_property
+            path: eletter_property_VCL.sql
+          - key: password_encryption_key
+            path: passwordEncryptionKey.binary
+          - key: services
+            path: services.properties
+          - key: auth_config
+            path: authConfig.properties
+          - key: tc_ping_env
+            path: tc-ping-env.properties
+      {{- toYaml (index .Values.env $env).mounts.volumes | nindent 6 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

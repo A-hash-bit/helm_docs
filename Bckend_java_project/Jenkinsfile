@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+    environment {
+        BRANCH_TYPE = "${branch_name.split('/')[0]}"
+        BRANCH = "${branch_name.replaceAll('/', '-')}"
+        GIT_COMMIT_SHORT = sh(
+            script: "printf \$(/opt/git/bin/git rev-parse --short ${GIT_COMMIT})",
+            returnStdout: true
+        )
+        GIT_REPO ="${GIT_URL.split('/')[-1].replaceAll('.git','')}"
+        CONTAINER_NAME = "${GIT_REPO}"
+        POM_VERSION = sh(
+            script: "printf \$(grep -A1 '<artifactId>$GIT_REPO</artifactId>' pom.xml | grep version | grep -o -P '(?<=<version>).*(?=</version>)')",
+            returnStdout: true
+        )
+        REGISTRY = 'repo URL'
+    }
+    tools {
+        maven "Maven 3.6.3"
+        jdk "openJDK-8u"
+    }
+    stages {
+        stage('Print some pre-check variables for us') {
+	        steps {
+                echo "Branch = ${branch_name}"
+                echo "Branch Type = ${BRANCH_TYPE}"
+                echo "Container Name = ${container_name}"
+                echo "Git Commit = ${GIT_COMMIT_SHORT}"
+                echo "pom.xml Version = ${POM_VERSION}"
+	        }
+	    }
+        stage('Build Maven artifact') {
+            steps {
+                configFileProvider([configFile(fileId: 'settings.xml', variable: 'MAVEN_SETTINGS_XML')]) {
+                    script {
+                        sh "mvn -s $MAVEN_SETTINGS_XML install:install-file -DgroupId=com.oracle -DartifactId=ojdbc8 -Dversion=11.2.0.2.0 -Dpackaging=jar -Dfile=docker/ojdbc8.jar"
+                        sh "mvn -s $MAVEN_SETTINGS_XML install:install-file -DgroupId=com.project.com -DartifactId=obieewebserivcelib -Dversion=0.0.1.6 -Dpackaging=jar -Dfile=docker/obieewebserivcelib-0.0.1.6.jar"
+                        sh "mvn -s $MAVEN_SETTINGS_XML clean package -U -DskipTests"
+                    }
+                }
+            }
+        }
+        stage('Build and Push Docker to registry') {
+            steps {
+                script {
+                    docker.withRegistry(registry) {
+                        def img = docker.build("${CONTAINER_NAME}"," -f docker/Dockerfile .")
+                        if (env.CHANGE_ID) {
+                                /* env.CHANGE_ID is setup when this is a Pull Request.  Don't push if/when a PR is done */
+                                echo "This is just a PR.  Not going to push image to Internal Docker Hub"
+                        } else {
+                             echo "Code Block to push image to docker hub."
+                             img.push("${GIT_COMMIT_SHORT}")
+                             img.push("${BRANCH}_${env.BUILD_ID}")
+                             img.push("${BRANCH}")
+                        }
+                    }
+	            }
+            }
+        }
+    }
+    post {
+        always {
+            echo "Build Completed !"
+        }
+    }
+}
